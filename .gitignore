@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+.idea/
+
+# Working notes not meant for the public repo
+core-idea.md
+docs/spike-card-draft.md
+docs/suggestions-and-improvements.md
+docs/handoff-summary.md

@@ -1,0 +1,96 @@
+{
+  "panels": [
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PEF6B4ADBC7750217"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Field"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 220
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "auto",
+                  "wrapText": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 24,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "cellHeight": "lg",
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PEF6B4ADBC7750217"
+          },
+          "format": "table",
+          "rawSql": "SELECT \"Field\", \"Value\" FROM (\n  SELECT 'Timestamp' AS \"Field\", event_timestamp::text AS \"Value\", 1 AS ord FROM events WHERE id::text = '$event_id'\n  UNION ALL SELECT 'Event Type', event_type, 2 FROM events WHERE id::text = '$event_id'\n  UNION ALL SELECT 'Skill', skill_name, 3 FROM events WHERE id::text = '$event_id'\n  UNION ALL SELECT 'Ticket', coalesce(ticket_id,'-'), 4 FROM events WHERE id::text = '$event_id'\n  UNION ALL SELECT 'Correlation ID', correlation_id, 5 FROM events WHERE id::text = '$event_id'\n  UNION ALL SELECT 'Repository', repository, 6 FROM events WHERE id::text = '$event_id'\n  UNION ALL SELECT 'Branch', coalesce(branch,'-'), 7 FROM events WHERE id::text = '$event_id'\n  UNION ALL SELECT 'Event ID', id::text, 8 FROM events WHERE id::text = '$event_id'\n  UNION ALL SELECT 'Received At', received_at::text, 9 FROM events WHERE id::text = '$event_id'\n  UNION ALL SELECT kv.key, (CASE jsonb_typeof(kv.value) WHEN 'array' THEN jsonb_pretty(kv.value) WHEN 'object' THEN jsonb_pretty(kv.value) ELSE trim(both '\"' from kv.value::text) END), 100 + kv.n\n    FROM events, jsonb_each(metadata) WITH ORDINALITY AS kv(key, value, n)\n    WHERE events.id::text = '$event_id'\n) t ORDER BY ord",
+          "refId": "A"
+        }
+      ],
+      "title": "Event $event_id",
+      "type": "table"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 39,
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "hide": 2,
+        "label": "Event ID",
+        "name": "event_id",
+        "options": [
+          {
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-15d",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "title": "Event Detail",
+  "uid": "event-detail"
+}

@@ -1,0 +1,705 @@
+{
+  "panels": [
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PEF6B4ADBC7750217"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PEF6B4ADBC7750217"
+          },
+          "format": "table",
+          "rawSql": "SELECT count(*) AS \"Total Events\" FROM events WHERE $__timeFilter(event_timestamp)\n  AND ('${skill:raw}' = '__ALL__' OR skill_name = '${skill:raw}')\n  AND ('${correlation_id:raw}' = '__ALL__' OR correlation_id = '${correlation_id:raw}')\n  AND ('${ticket:raw}' = '__ALL__' OR ticket_id = '${ticket:raw}')\n  AND ('${repository:raw}' = '__ALL__' OR repository = '${repository:raw}')\n  AND ('${mcp_server:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mcp_usage','[]'::jsonb)) e\n        WHERE e->>'server' = '${mcp_server:raw}'\n      ))\n  AND ('${mode:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mode_usage','[]'::jsonb)) e\n        WHERE e->>'mode' = '${mode:raw}'\n      ))",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Events",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PEF6B4ADBC7750217"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PEF6B4ADBC7750217"
+          },
+          "format": "table",
+          "rawSql": "SELECT count(*) AS \"Completed Runs\" FROM events WHERE event_type LIKE '%_completed' AND $__timeFilter(event_timestamp)\n  AND ('${skill:raw}' = '__ALL__' OR skill_name = '${skill:raw}')\n  AND ('${correlation_id:raw}' = '__ALL__' OR correlation_id = '${correlation_id:raw}')\n  AND ('${ticket:raw}' = '__ALL__' OR ticket_id = '${ticket:raw}')\n  AND ('${repository:raw}' = '__ALL__' OR repository = '${repository:raw}')\n  AND ('${mcp_server:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mcp_usage','[]'::jsonb)) e\n        WHERE e->>'server' = '${mcp_server:raw}'\n      ))\n  AND ('${mode:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mode_usage','[]'::jsonb)) e\n        WHERE e->>'mode' = '${mode:raw}'\n      ))",
+          "refId": "A"
+        }
+      ],
+      "title": "Completed Runs",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PEF6B4ADBC7750217"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PEF6B4ADBC7750217"
+          },
+          "format": "table",
+          "rawSql": "SELECT sum((metadata->>'duration_seconds')::float) AS \"Total Time\" FROM events WHERE event_type LIKE '%_completed' AND $__timeFilter(event_timestamp)\n  AND ('${skill:raw}' = '__ALL__' OR skill_name = '${skill:raw}')\n  AND ('${correlation_id:raw}' = '__ALL__' OR correlation_id = '${correlation_id:raw}')\n  AND ('${ticket:raw}' = '__ALL__' OR ticket_id = '${ticket:raw}')\n  AND ('${repository:raw}' = '__ALL__' OR repository = '${repository:raw}')\n  AND ('${mcp_server:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mcp_usage','[]'::jsonb)) e\n        WHERE e->>'server' = '${mcp_server:raw}'\n      ))\n  AND ('${mode:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mode_usage','[]'::jsonb)) e\n        WHERE e->>'mode' = '${mode:raw}'\n      ))",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Active Skill Time",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PEF6B4ADBC7750217"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PEF6B4ADBC7750217"
+          },
+          "format": "table",
+          "rawSql": "SELECT avg((metadata->>'duration_seconds')::float) AS \"Avg Duration\" FROM events WHERE event_type LIKE '%_completed' AND $__timeFilter(event_timestamp)\n  AND ('${skill:raw}' = '__ALL__' OR skill_name = '${skill:raw}')\n  AND ('${correlation_id:raw}' = '__ALL__' OR correlation_id = '${correlation_id:raw}')\n  AND ('${ticket:raw}' = '__ALL__' OR ticket_id = '${ticket:raw}')\n  AND ('${repository:raw}' = '__ALL__' OR repository = '${repository:raw}')\n  AND ('${mcp_server:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mcp_usage','[]'::jsonb)) e\n        WHERE e->>'server' = '${mcp_server:raw}'\n      ))\n  AND ('${mode:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mode_usage','[]'::jsonb)) e\n        WHERE e->>'mode' = '${mode:raw}'\n      ))",
+          "refId": "A"
+        }
+      ],
+      "title": "Avg Duration / Run",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PEF6B4ADBC7750217"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 0
+      },
+      "id": 5,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PEF6B4ADBC7750217"
+          },
+          "format": "table",
+          "rawSql": "SELECT sum((metadata->>'tokens_used')::bigint) AS \"Total Tokens\" FROM events WHERE event_type LIKE '%_completed' AND $__timeFilter(event_timestamp)\n  AND ('${skill:raw}' = '__ALL__' OR skill_name = '${skill:raw}')\n  AND ('${correlation_id:raw}' = '__ALL__' OR correlation_id = '${correlation_id:raw}')\n  AND ('${ticket:raw}' = '__ALL__' OR ticket_id = '${ticket:raw}')\n  AND ('${repository:raw}' = '__ALL__' OR repository = '${repository:raw}')\n  AND ('${mcp_server:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mcp_usage','[]'::jsonb)) e\n        WHERE e->>'server' = '${mcp_server:raw}'\n      ))\n  AND ('${mode:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mode_usage','[]'::jsonb)) e\n        WHERE e->>'mode' = '${mode:raw}'\n      ))",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Tokens",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PEF6B4ADBC7750217"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 0
+      },
+      "id": 14,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PEF6B4ADBC7750217"
+          },
+          "format": "table",
+          "rawSql": "SELECT avg(span_seconds) AS \"Avg Wall-Clock Time\" FROM (\n  SELECT correlation_id, EXTRACT(EPOCH FROM (max(event_timestamp) - min(event_timestamp))) AS span_seconds\n  FROM events\n  WHERE $__timeFilter(event_timestamp)\n  AND ('${skill:raw}' = '__ALL__' OR skill_name = '${skill:raw}')\n  AND ('${correlation_id:raw}' = '__ALL__' OR correlation_id = '${correlation_id:raw}')\n  AND ('${ticket:raw}' = '__ALL__' OR ticket_id = '${ticket:raw}')\n  AND ('${repository:raw}' = '__ALL__' OR repository = '${repository:raw}')\n  AND ('${mcp_server:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mcp_usage','[]'::jsonb)) e\n        WHERE e->>'server' = '${mcp_server:raw}'\n      ))\n  AND ('${mode:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mode_usage','[]'::jsonb)) e\n        WHERE e->>'mode' = '${mode:raw}'\n      ))  GROUP BY correlation_id\n) t",
+          "refId": "A"
+        }
+      ],
+      "title": "Avg Wall-Clock Time / Ticket",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PEF6B4ADBC7750217"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "id": 6,
+      "options": {
+        "xField": "skill_name"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PEF6B4ADBC7750217"
+          },
+          "format": "table",
+          "rawSql": "SELECT skill_name, count(*) AS count FROM events WHERE $__timeFilter(event_timestamp)\n  AND ('${skill:raw}' = '__ALL__' OR skill_name = '${skill:raw}')\n  AND ('${correlation_id:raw}' = '__ALL__' OR correlation_id = '${correlation_id:raw}')\n  AND ('${ticket:raw}' = '__ALL__' OR ticket_id = '${ticket:raw}')\n  AND ('${repository:raw}' = '__ALL__' OR repository = '${repository:raw}')\n  AND ('${mcp_server:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mcp_usage','[]'::jsonb)) e\n        WHERE e->>'server' = '${mcp_server:raw}'\n      ))\n  AND ('${mode:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mode_usage','[]'::jsonb)) e\n        WHERE e->>'mode' = '${mode:raw}'\n      )) GROUP BY skill_name ORDER BY skill_name",
+          "refId": "A"
+        }
+      ],
+      "title": "Events by Skill",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PEF6B4ADBC7750217"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "pointSize": 5,
+            "showPoints": "always"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PEF6B4ADBC7750217"
+          },
+          "format": "time_series",
+          "rawSql": "SELECT\n          event_timestamp AS \"time\",\n          (CASE WHEN skill_name = 'speckit-specify' THEN (metadata->>'duration_seconds')::float END) AS \"specify\",\n          (CASE WHEN skill_name = 'speckit-plan' THEN (metadata->>'duration_seconds')::float END) AS \"plan\",\n          (CASE WHEN skill_name = 'speckit-tasks' THEN (metadata->>'duration_seconds')::float END) AS \"tasks\",\n          (CASE WHEN skill_name = 'speckit-implement' THEN (metadata->>'duration_seconds')::float END) AS \"implement\"\n        FROM events\n        WHERE event_type LIKE '%_completed' AND $__timeFilter(event_timestamp)\n  AND ('${skill:raw}' = '__ALL__' OR skill_name = '${skill:raw}')\n  AND ('${correlation_id:raw}' = '__ALL__' OR correlation_id = '${correlation_id:raw}')\n  AND ('${ticket:raw}' = '__ALL__' OR ticket_id = '${ticket:raw}')\n  AND ('${repository:raw}' = '__ALL__' OR repository = '${repository:raw}')\n  AND ('${mcp_server:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mcp_usage','[]'::jsonb)) e\n        WHERE e->>'server' = '${mcp_server:raw}'\n      ))\n  AND ('${mode:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mode_usage','[]'::jsonb)) e\n        WHERE e->>'mode' = '${mode:raw}'\n      ))\n        ORDER BY event_timestamp",
+          "refId": "A"
+        }
+      ],
+      "title": "Duration Trend by Skill (s)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PEF6B4ADBC7750217"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "pointSize": 5,
+            "showPoints": "always"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PEF6B4ADBC7750217"
+          },
+          "format": "time_series",
+          "rawSql": "SELECT\n          event_timestamp AS \"time\",\n          (CASE WHEN skill_name = 'speckit-specify' THEN (metadata->>'tokens_used')::bigint END) AS \"specify\",\n          (CASE WHEN skill_name = 'speckit-plan' THEN (metadata->>'tokens_used')::bigint END) AS \"plan\",\n          (CASE WHEN skill_name = 'speckit-tasks' THEN (metadata->>'tokens_used')::bigint END) AS \"tasks\",\n          (CASE WHEN skill_name = 'speckit-implement' THEN (metadata->>'tokens_used')::bigint END) AS \"implement\"\n        FROM events\n        WHERE event_type LIKE '%_completed' AND $__timeFilter(event_timestamp)\n  AND ('${skill:raw}' = '__ALL__' OR skill_name = '${skill:raw}')\n  AND ('${correlation_id:raw}' = '__ALL__' OR correlation_id = '${correlation_id:raw}')\n  AND ('${ticket:raw}' = '__ALL__' OR ticket_id = '${ticket:raw}')\n  AND ('${repository:raw}' = '__ALL__' OR repository = '${repository:raw}')\n  AND ('${mcp_server:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mcp_usage','[]'::jsonb)) e\n        WHERE e->>'server' = '${mcp_server:raw}'\n      ))\n  AND ('${mode:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mode_usage','[]'::jsonb)) e\n        WHERE e->>'mode' = '${mode:raw}'\n      ))\n        ORDER BY event_timestamp",
+          "refId": "A"
+        }
+      ],
+      "title": "Token Usage Trend by Skill",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PEF6B4ADBC7750217"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "id": 9,
+      "options": {
+        "xField": "Ticket",
+        "xTickLabelRotation": -45,
+        "xTickLabelMaxLength": 12,
+        "xTickLabelSpacing": 50
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PEF6B4ADBC7750217"
+          },
+          "format": "table",
+          "rawSql": "SELECT \"Ticket\", \"Time Used (s)\" FROM (\n          SELECT\n            ticket_id AS \"Ticket\",\n            sum((metadata->>'duration_seconds')::float) AS \"Time Used (s)\",\n            max(event_timestamp) AS \"Last Activity\"\n          FROM events\n          WHERE event_type LIKE '%_completed' AND ticket_id IS NOT NULL AND $__timeFilter(event_timestamp)\n  AND ('${skill:raw}' = '__ALL__' OR skill_name = '${skill:raw}')\n  AND ('${correlation_id:raw}' = '__ALL__' OR correlation_id = '${correlation_id:raw}')\n  AND ('${ticket:raw}' = '__ALL__' OR ticket_id = '${ticket:raw}')\n  AND ('${repository:raw}' = '__ALL__' OR repository = '${repository:raw}')\n  AND ('${mcp_server:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mcp_usage','[]'::jsonb)) e\n        WHERE e->>'server' = '${mcp_server:raw}'\n      ))\n  AND ('${mode:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mode_usage','[]'::jsonb)) e\n        WHERE e->>'mode' = '${mode:raw}'\n      ))\n          GROUP BY ticket_id\n        ) sub\n        ORDER BY \"Last Activity\" DESC\n        LIMIT 10",
+          "refId": "A"
+        }
+      ],
+      "title": "Time Used by Ticket (10 Most Recent)",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PEF6B4ADBC7750217"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 20
+      },
+      "id": 10,
+      "options": {},
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PEF6B4ADBC7750217"
+          },
+          "format": "table",
+          "rawSql": "SELECT\n          elem->>'server' AS \"Server\",\n          sum((elem->>'calls')::int) AS \"Calls\",\n          sum((elem->>'tokens')::bigint) AS \"Tokens\",\n          count(DISTINCT events.id) AS \"Events\",\n          count(DISTINCT events.correlation_id) AS \"Specs\"\n        FROM events, jsonb_array_elements(metadata->'mcp_usage') AS elem\n        WHERE $__timeFilter(event_timestamp)\n  AND ('${skill:raw}' = '__ALL__' OR skill_name = '${skill:raw}')\n  AND ('${correlation_id:raw}' = '__ALL__' OR correlation_id = '${correlation_id:raw}')\n  AND ('${ticket:raw}' = '__ALL__' OR ticket_id = '${ticket:raw}')\n  AND ('${repository:raw}' = '__ALL__' OR repository = '${repository:raw}')\n  AND ('${mcp_server:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mcp_usage','[]'::jsonb)) e\n        WHERE e->>'server' = '${mcp_server:raw}'\n      ))\n  AND ('${mode:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mode_usage','[]'::jsonb)) e\n        WHERE e->>'mode' = '${mode:raw}'\n      ))\n        GROUP BY \"Server\"\n        ORDER BY \"Tokens\" DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "MCP Server Usage",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PEF6B4ADBC7750217"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 20
+      },
+      "id": 11,
+      "options": {},
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PEF6B4ADBC7750217"
+          },
+          "format": "table",
+          "rawSql": "SELECT\n          elem->>'mode' AS \"Mode\",\n          sum((elem->>'turns')::int) AS \"Turns\",\n          sum((elem->>'tokens')::bigint) AS \"Tokens\",\n          count(DISTINCT events.id) AS \"Events\",\n          count(DISTINCT events.correlation_id) AS \"Specs\"\n        FROM events, jsonb_array_elements(metadata->'mode_usage') AS elem\n        WHERE $__timeFilter(event_timestamp)\n  AND ('${skill:raw}' = '__ALL__' OR skill_name = '${skill:raw}')\n  AND ('${correlation_id:raw}' = '__ALL__' OR correlation_id = '${correlation_id:raw}')\n  AND ('${ticket:raw}' = '__ALL__' OR ticket_id = '${ticket:raw}')\n  AND ('${repository:raw}' = '__ALL__' OR repository = '${repository:raw}')\n  AND ('${mcp_server:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mcp_usage','[]'::jsonb)) e\n        WHERE e->>'server' = '${mcp_server:raw}'\n      ))\n  AND ('${mode:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mode_usage','[]'::jsonb)) e\n        WHERE e->>'mode' = '${mode:raw}'\n      ))\n        GROUP BY \"Mode\"\n        ORDER BY \"Tokens\" DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Permission Mode Usage",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PEF6B4ADBC7750217"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "id": 12,
+      "options": {},
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PEF6B4ADBC7750217"
+          },
+          "format": "table",
+          "rawSql": "SELECT\n          correlation_id AS \"Correlation ID\",\n          max(ticket_id) AS \"Ticket\",\n          max(metadata->>'summary') FILTER (WHERE event_type = 'speckit_specify_started') AS \"Summary\",\n          array_to_string(array_agg(DISTINCT skill_name ORDER BY skill_name), ', ') AS \"Skills\",\n          count(*) FILTER (WHERE event_type LIKE '%_started') AS \"Runs\",\n          count(*) FILTER (WHERE event_type LIKE '%_completed') AS \"Completed\",\n          sum((metadata->>'duration_seconds')::float) AS \"Total Duration (s)\",\n          sum((metadata->>'tokens_used')::bigint) AS \"Total Tokens\",\n          max(event_timestamp) AS \"Last Activity\"\n        FROM events\n        WHERE $__timeFilter(event_timestamp)\n  AND ('${skill:raw}' = '__ALL__' OR skill_name = '${skill:raw}')\n  AND ('${correlation_id:raw}' = '__ALL__' OR correlation_id = '${correlation_id:raw}')\n  AND ('${ticket:raw}' = '__ALL__' OR ticket_id = '${ticket:raw}')\n  AND ('${repository:raw}' = '__ALL__' OR repository = '${repository:raw}')\n  AND ('${mcp_server:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mcp_usage','[]'::jsonb)) e\n        WHERE e->>'server' = '${mcp_server:raw}'\n      ))\n  AND ('${mode:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mode_usage','[]'::jsonb)) e\n        WHERE e->>'mode' = '${mode:raw}'\n      ))\n        GROUP BY correlation_id\n        ORDER BY max(event_timestamp) DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Specs",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PEF6B4ADBC7750217"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ID"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Event"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "View full event",
+                    "url": "/d/event-detail/event-detail?var-event_id=${__data.fields.ID}",
+                    "targetBlank": false
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 38
+      },
+      "id": 13,
+      "options": {},
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PEF6B4ADBC7750217"
+          },
+          "format": "table",
+          "rawSql": "SELECT\n          event_timestamp AS \"Time\",\n          event_type AS \"Event\",\n          skill_name AS \"Skill\",\n          (metadata->>'duration_seconds')::float AS \"Duration (s)\",\n          ticket_id AS \"Ticket\",\n          (metadata->>'tokens_used')::bigint AS \"Tokens\",\n          correlation_id AS \"Correlation ID\",\n          repository AS \"Repo\",\n          branch AS \"Branch\",\n          id AS \"ID\"\n        FROM events\n        WHERE $__timeFilter(event_timestamp)\n  AND ('${skill:raw}' = '__ALL__' OR skill_name = '${skill:raw}')\n  AND ('${correlation_id:raw}' = '__ALL__' OR correlation_id = '${correlation_id:raw}')\n  AND ('${ticket:raw}' = '__ALL__' OR ticket_id = '${ticket:raw}')\n  AND ('${repository:raw}' = '__ALL__' OR repository = '${repository:raw}')\n  AND ('${mcp_server:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mcp_usage','[]'::jsonb)) e\n        WHERE e->>'server' = '${mcp_server:raw}'\n      ))\n  AND ('${mode:raw}' = '__ALL__' OR EXISTS (\n        SELECT 1 FROM jsonb_array_elements(coalesce(metadata->'mode_usage','[]'::jsonb)) e\n        WHERE e->>'mode' = '${mode:raw}'\n      ))\n        ORDER BY event_timestamp DESC\n        LIMIT 100",
+          "refId": "A"
+        }
+      ],
+      "title": "Recent Events",
+      "type": "table"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "templating": {
+    "list": [
+      {
+        "allValue": "__ALL__",
+        "current": {
+          "text": "All",
+          "value": "__ALL__"
+        },
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "PEF6B4ADBC7750217"
+        },
+        "hide": 0,
+        "includeAll": true,
+        "multi": false,
+        "name": "repository",
+        "query": "SELECT DISTINCT repository FROM events ORDER BY 1",
+        "refresh": 2,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": "__ALL__",
+        "current": {
+          "text": "All",
+          "value": "__ALL__"
+        },
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "PEF6B4ADBC7750217"
+        },
+        "hide": 0,
+        "includeAll": true,
+        "multi": false,
+        "name": "ticket",
+        "query": "SELECT DISTINCT ticket_id FROM events WHERE ticket_id IS NOT NULL AND ('${repository:raw}' = '__ALL__' OR repository = '${repository:raw}') ORDER BY 1",
+        "refresh": 2,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": "__ALL__",
+        "current": {
+          "text": "All",
+          "value": "__ALL__"
+        },
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "PEF6B4ADBC7750217"
+        },
+        "hide": 0,
+        "includeAll": true,
+        "multi": false,
+        "name": "correlation_id",
+        "query": "SELECT DISTINCT correlation_id FROM events WHERE ('${repository:raw}' = '__ALL__' OR repository = '${repository:raw}')\n  AND ('${ticket:raw}' = '__ALL__' OR ticket_id = '${ticket:raw}') ORDER BY 1",
+        "refresh": 2,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": "__ALL__",
+        "current": {
+          "text": "All",
+          "value": "__ALL__"
+        },
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "PEF6B4ADBC7750217"
+        },
+        "hide": 0,
+        "includeAll": true,
+        "multi": false,
+        "name": "skill",
+        "query": "SELECT DISTINCT skill_name FROM events WHERE ('${repository:raw}' = '__ALL__' OR repository = '${repository:raw}')\n  AND ('${ticket:raw}' = '__ALL__' OR ticket_id = '${ticket:raw}')\n  AND ('${correlation_id:raw}' = '__ALL__' OR correlation_id = '${correlation_id:raw}') ORDER BY 1",
+        "refresh": 2,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": "__ALL__",
+        "current": {
+          "text": "All",
+          "value": "__ALL__"
+        },
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "PEF6B4ADBC7750217"
+        },
+        "hide": 0,
+        "includeAll": true,
+        "multi": false,
+        "name": "mcp_server",
+        "query": "SELECT DISTINCT elem->>'server' FROM events, jsonb_array_elements(coalesce(metadata->'mcp_usage','[]'::jsonb)) elem\nWHERE ('${repository:raw}' = '__ALL__' OR repository = '${repository:raw}')\n  AND ('${ticket:raw}' = '__ALL__' OR ticket_id = '${ticket:raw}')\n  AND ('${correlation_id:raw}' = '__ALL__' OR correlation_id = '${correlation_id:raw}') ORDER BY 1",
+        "refresh": 2,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": "__ALL__",
+        "current": {
+          "text": "All",
+          "value": "__ALL__"
+        },
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "PEF6B4ADBC7750217"
+        },
+        "hide": 0,
+        "includeAll": true,
+        "multi": false,
+        "name": "mode",
+        "query": "SELECT DISTINCT elem->>'mode' FROM events, jsonb_array_elements(coalesce(metadata->'mode_usage','[]'::jsonb)) elem\nWHERE ('${repository:raw}' = '__ALL__' OR repository = '${repository:raw}')\n  AND ('${ticket:raw}' = '__ALL__' OR ticket_id = '${ticket:raw}')\n  AND ('${correlation_id:raw}' = '__ALL__' OR correlation_id = '${correlation_id:raw}') ORDER BY 1",
+        "refresh": 2,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "title": "Spec-kit Telemetry",
+  "uid": "spec-kit-telemetry"
+}

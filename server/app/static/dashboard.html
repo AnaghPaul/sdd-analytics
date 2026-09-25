@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Spec-kit Telemetry</title>
+<style>
+  :root {
+    --bg-page-subtle: #f3f3f6;
+    --bg-base: #ffffff;
+    --text-primary: #101112;
+    --text-secondary: #56606b;
+    --text-brand: #e60000;
+    --border-subtle: #dcdfe1;
+    --radius-sm: 0.25rem;
+    --radius-md: 0.375rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+    --radius-full: 9999px;
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-12: 3rem;
+    --space-20: 5rem;
+    --space-24: 6rem;
+    --accent-blue: #005cbf;
+    --accent-yellow: #9c8700;
+    --accent-lime: #789c00;
+    --accent-fuchsia: #bc00bf;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--bg-page-subtle);
+    color: var(--text-primary);
+  }
+  .wrap {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: var(--space-12) var(--space-12) var(--space-24);
+  }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .subtitle { color: var(--text-secondary); font-size: 13px; margin: 0 0 var(--space-8); }
+
+  .card {
+    background: var(--bg-base);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+  }
+  .card h2 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 var(--space-4);
+  }
+
+  .stat-row { display: flex; gap: var(--space-6); flex-wrap: wrap; }
+  .stat-tile { flex: 1; min-width: 140px; }
+  .stat-value {
+    font-size: 32px;
+    font-weight: 600;
+    font-variant-numeric: proportional-nums;
+  }
+  .stat-label { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    position: relative;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    padding: var(--space-1);
+    margin: -4px -4px var(--space-3) -4px;
+    transition: background 0.15s ease, opacity 0.15s ease;
+  }
+  .bar-row:hover { background: var(--bg-page-subtle); }
+  .bar-row.is-dimmed { opacity: 0.4; }
+  .bar-row.is-active .bar-label { font-weight: 600; color: var(--text-primary); }
+  .bar-label { width: 96px; font-size: 13px; color: var(--text-secondary); flex-shrink: 0; }
+  .bar-track {
+    flex: 1;
+    background: var(--bg-page-subtle);
+    border-radius: var(--radius-sm);
+    height: 20px;
+    position: relative;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: var(--radius-sm);
+    min-width: 4px;
+    transition: width 0.3s ease;
+  }
+  .bar-count {
+    width: 32px;
+    text-align: right;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+    flex-shrink: 0;
+  }
+  .tooltip {
+    position: absolute;
+    top: -30px;
+    left: 0;
+    background: var(--text-primary);
+    color: var(--bg-base);
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: var(--radius-md);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 1;
+  }
+  .bar-row:hover .tooltip { opacity: 1; }
+
+  .search-row { margin-bottom: var(--space-6); }
+  .search-input {
+    width: 100%;
+    max-width: 480px;
+    font: inherit;
+    font-size: 14px;
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    background: var(--bg-base);
+    color: var(--text-primary);
+  }
+  .search-input:focus {
+    outline: 2px solid var(--text-brand);
+    outline-offset: 1px;
+  }
+  .search-hint { font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td {
+    text-align: left;
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--border-subtle);
+    white-space: nowrap;
+  }
+  th {
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable:hover { color: var(--text-primary); }
+  th.sortable .arrow { opacity: 0.5; margin-left: 4px; }
+  th.sortable.is-sorted .arrow { opacity: 1; }
+  td.mono {
+    font-variant-numeric: tabular-nums;
+    color: var(--text-secondary);
+  }
+  .empty { color: var(--text-secondary); font-size: 13px; padding: 8px 0; opacity: 0.8; }
+  .dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: var(--bg-base);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-full);
+    padding: 6px 8px 6px 14px;
+    font-size: 13px;
+    margin-bottom: var(--space-6);
+    margin-right: var(--space-2);
+  }
+  .filter-chip a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    background: var(--bg-page-subtle);
+    border-radius: var(--radius-full);
+    padding: 2px 8px;
+  }
+  .filter-chip a:hover { color: var(--text-primary); }
+  .truncate {
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: bottom;
+  }
+  .skill-dots { display: flex; gap: 4px; }
+  .mcp-badge {
+    display: inline-block;
+    background: var(--bg-page-subtle);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-full);
+    padding: 1px 8px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-right: 4px;
+    white-space: nowrap;
+  }
+  tbody tr.mcp-row { cursor: pointer; }
+  tbody tr.mcp-row:hover { background: var(--bg-page-subtle); }
+  td.link { cursor: pointer; color: var(--text-primary); }
+  td.link:hover { text-decoration: underline; }
+  tbody tr.row-clickable { cursor: pointer; }
+  tbody tr.row-clickable:hover { background: var(--bg-page-subtle); }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(11, 11, 18, 0.4);
+    align-items: flex-start;
+    justify-content: center;
+    padding: var(--space-20) var(--space-6);
+    z-index: 10;
+    overflow-y: auto;
+  }
+  .modal-card {
+    background: var(--bg-base);
+    border-radius: var(--radius-xl);
+    max-width: 640px;
+    width: 100%;
+    padding: var(--space-6);
+    box-shadow: 0 8px 32px rgba(11, 11, 18, 0.2);
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+  }
+  .modal-header h2 { margin: 0; text-transform: none; letter-spacing: normal; font-size: 15px; }
+  .modal-close {
+    border: none;
+    background: var(--bg-page-subtle);
+    border-radius: var(--radius-full);
+    width: 28px;
+    height: 28px;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--text-secondary);
+  }
+  .modal-close:hover { color: var(--text-primary); }
+  .detail-heading {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin: var(--space-5) 0 var(--space-2);
+  }
+  .detail-section { border-top: 1px solid var(--border-subtle); }
+  .detail-row {
+    display: flex;
+    gap: var(--space-4);
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 13px;
+  }
+  .detail-label {
+    width: 140px;
+    flex-shrink: 0;
+    color: var(--text-secondary);
+  }
+  .detail-value {
+    flex: 1;
+    color: var(--text-primary);
+    word-break: break-word;
+    white-space: pre-wrap;
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Spec-kit Telemetry</h1>
+  <p class="subtitle">Auto-refreshes every 5s. Skill: <code>specify</code> / <code>plan</code> / <code>tasks</code> / <code>implement</code></p>
+
+  <div id="filter-chip"></div>
+
+  <div class="card">
+    <h2 id="overview-title">Overview</h2>
+    <div class="stat-row">
+      <div class="stat-tile">
+        <div class="stat-value" id="stat-total">–</div>
+        <div class="stat-label">Total events</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-value" id="stat-completed">–</div>
+        <div class="stat-label">Completed skill runs</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-value" id="stat-total-time">–</div>
+        <div class="stat-label">Total time elapsed</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-value" id="stat-avg-time">–</div>
+        <div class="stat-label">Avg duration / run</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-value" id="stat-tokens">–</div>
+        <div class="stat-label">Total tokens</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Events by skill — click a bar to filter</h2>
+    <div id="bar-chart"></div>
+  </div>
+
+  <div class="card">
+    <h2>MCP server usage — click a row to filter</h2>
+    <div id="mcp-stats-table" class="table-scroll"></div>
+  </div>
+
+  <div class="card">
+    <h2>Permission mode usage — click a row to filter</h2>
+    <div id="mode-stats-table" class="table-scroll"></div>
+  </div>
+
+  <div class="card">
+    <div class="search-row">
+      <input type="text" id="search-input" class="search-input" placeholder="Search everything — plain text or /regex/" />
+      <div class="search-hint">Searches ticket, summary, correlation ID, repo, branch, skill, event type, MCP servers, permission mode — across both tables below.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Specs — click a row to filter by correlation ID</h2>
+    <div id="specs-table" class="table-scroll"></div>
+  </div>
+
+  <div class="card">
+    <h2 id="events-title">Recent events</h2>
+    <div class="search-hint" style="margin-top: -8px; margin-bottom: var(--space-3);">Click a row for full details, including fields not shown here.</div>
+    <div id="events-table" class="table-scroll"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="event-modal-overlay" onclick="if (event.target === this) closeEventModal()">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>Event details</h2>
+      <button class="modal-close" onclick="closeEventModal()" aria-label="Close">×</button>
+    </div>
+    <div id="event-modal-body"></div>
+  </div>
+</div>
+
+<script>
+  const SKILL_COLORS = {
+    'speckit-specify': 'var(--accent-blue)',
+    'speckit-plan': 'var(--accent-yellow)',
+    'speckit-tasks': 'var(--accent-lime)',
+    'speckit-implement': 'var(--accent-fuchsia)',
+  };
+  const SKILL_ORDER = ['speckit-specify', 'speckit-plan', 'speckit-tasks', 'speckit-implement'];
+
+  // Cached last-fetched data so search/sort can re-render instantly
+  // without waiting on a network round trip.
+  let lastEvents = [];
+  let lastSpecs = [];
+  let searchTerm = '';
+  let eventsSort = { key: null, dir: 1 };
+  let specsSort = { key: null, dir: 1 };
+
+  function activeSkill() {
+    return new URLSearchParams(window.location.search).get('skill');
+  }
+
+  function activeCorrelationId() {
+    return new URLSearchParams(window.location.search).get('correlation_id');
+  }
+
+  function activeMcpServer() {
+    return new URLSearchParams(window.location.search).get('mcp_server');
+  }
+
+  function activeMode() {
+    return new URLSearchParams(window.location.search).get('mode');
+  }
+
+  function shortId(id) {
+    return id && id.length > 12 ? id.slice(0, 8) + '…' : id;
+  }
+
+  function fmtTime(iso) {
+    const d = new Date(iso);
+    return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+
+  function fmtDuration(seconds) {
+    if (seconds === null || seconds === undefined) return '–';
+    seconds = Math.round(seconds);
+    if (seconds < 60) return `${seconds}s`;
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    if (m < 60) return `${m}m ${s}s`;
+    const h = Math.floor(m / 60);
+    return `${h}h ${m % 60}m`;
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function showEventDetail(id) {
+    const event = lastEvents.find(e => e.id === id);
+    if (!event) return;
+    renderEventModal(event);
+    document.getElementById('event-modal-overlay').style.display = 'flex';
+  }
+
+  function closeEventModal() {
+    document.getElementById('event-modal-overlay').style.display = 'none';
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeEventModal();
+  });
+
+  function detailRows(fields) {
+    return fields.map(([label, value]) => `
+      <div class="detail-row">
+        <div class="detail-label">${escapeHtml(label)}</div>
+        <div class="detail-value">${escapeHtml(value === null || value === undefined || value === '' ? '–' : String(value))}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderEventModal(event) {
+    const meta = event.metadata || {};
+    const coreFields = [
+      ['ID', event.id],
+      ['Event type', event.event_type],
+      ['Skill', event.skill_name],
+      ['Correlation ID', event.correlation_id],
+      ['Ticket', event.ticket_id],
+      ['Repository', event.repository],
+      ['Branch', event.branch],
+      ['Event timestamp', fmtTime(event.event_timestamp)],
+      ['Received at', fmtTime(event.received_at)],
+    ];
+    // Every metadata key is rendered generically — new fields show up here
+    // automatically without needing dashboard code changes.
+    const metaFields = Object.entries(meta).map(([k, v]) => [
+      k.replace(/_/g, ' '),
+      typeof v === 'object' ? JSON.stringify(v) : v,
+    ]);
+
+    document.getElementById('event-modal-body').innerHTML = `
+      <div class="detail-section">${detailRows(coreFields)}</div>
+      ${metaFields.length ? `<div class="detail-heading">Metadata</div><div class="detail-section">${detailRows(metaFields)}</div>` : ''}
+    `;
+  }
+
+  function rowMatchesSearch(row) {
+    if (!searchTerm) return true;
+    const haystack = JSON.stringify(row);
+    try {
+      return new RegExp(searchTerm, 'i').test(haystack);
+    } catch (e) {
+      return haystack.toLowerCase().includes(searchTerm.toLowerCase());
+    }
+  }
+
+  function sortRows(rows, sortState, valueFn) {
+    if (!sortState.key) return rows;
+    return [...rows].sort((a, b) => {
+      const av = valueFn(a) ?? -Infinity;
+      const bv = valueFn(b) ?? -Infinity;
+      return (av - bv) * sortState.dir;
+    });
+  }
+
+  function sortArrow(sortState, key) {
+    if (sortState.key !== key) return '<span class="arrow">↕</span>';
+    return `<span class="arrow">${sortState.dir === 1 ? '↑' : '↓'}</span>`;
+  }
+
+  async function refresh() {
+    try {
+      const skill = activeSkill();
+      const correlationId = activeCorrelationId();
+      const mcpServer = activeMcpServer();
+      const mode = activeMode();
+      const params = new URLSearchParams();
+      if (skill) params.set('skill_name', skill);
+      if (correlationId) params.set('correlation_id', correlationId);
+      if (mcpServer) params.set('mcp_server', mcpServer);
+      if (mode) params.set('mode', mode);
+      const eventsParams = new URLSearchParams(params);
+      eventsParams.set('limit', 200);
+
+      const [statsRes, eventsRes, specsRes, mcpStatsRes, modeStatsRes] = await Promise.all([
+        fetch(`/api/v1/stats?${params}`),
+        fetch(`/api/v1/events?${eventsParams}`),
+        fetch('/api/v1/specs'),
+        fetch('/api/v1/mcp-stats'),
+        fetch('/api/v1/mode-stats'),
+      ]);
+      const stats = await statsRes.json();
+      lastEvents = await eventsRes.json();
+      lastSpecs = await specsRes.json();
+      const mcpStats = await mcpStatsRes.json();
+      const modeStats = await modeStatsRes.json();
+
+      renderFilterChip(skill, correlationId, mcpServer, mode);
+      renderStats(stats);
+      renderBarChart(stats, skill);
+      renderMcpStatsTable(mcpStats, mcpServer);
+      renderModeStatsTable(modeStats, mode);
+      renderSpecsTable(correlationId);
+      renderEventsTable(skill, correlationId, mcpServer, mode);
+    } catch (e) {
+      console.error('refresh failed', e);
+    }
+  }
+
+  function renderFilterChip(skill, correlationId, mcpServer, mode) {
+    const container = document.getElementById('filter-chip');
+    const chips = [];
+    if (skill) {
+      const label = skill.replace('speckit-', '');
+      chips.push(`
+        <div class="filter-chip">
+          <span><span class="dot" style="background:${SKILL_COLORS[skill] || 'var(--text-secondary)'}"></span>Skill: <strong>${label}</strong></span>
+          <a href="?${dropParam('skill')}" onclick="event.preventDefault(); navigate('?${dropParam('skill')}')">Clear ×</a>
+        </div>
+      `);
+    }
+    if (correlationId) {
+      chips.push(`
+        <div class="filter-chip">
+          <span>Spec: <strong>${shortId(correlationId)}</strong></span>
+          <a href="?${dropParam('correlation_id')}" onclick="event.preventDefault(); navigate('?${dropParam('correlation_id')}')">Clear ×</a>
+        </div>
+      `);
+    }
+    if (mcpServer) {
+      chips.push(`
+        <div class="filter-chip">
+          <span>MCP server: <strong>${escapeHtml(mcpServer)}</strong></span>
+          <a href="?${dropParam('mcp_server')}" onclick="event.preventDefault(); navigate('?${dropParam('mcp_server')}')">Clear ×</a>
+        </div>
+      `);
+    }
+    if (mode) {
+      chips.push(`
+        <div class="filter-chip">
+          <span>Mode: <strong>${escapeHtml(mode)}</strong></span>
+          <a href="?${dropParam('mode')}" onclick="event.preventDefault(); navigate('?${dropParam('mode')}')">Clear ×</a>
+        </div>
+      `);
+    }
+    container.innerHTML = chips.join(' ');
+  }
+
+  function dropParam(name) {
+    const params = new URLSearchParams(window.location.search);
+    params.delete(name);
+    return params.toString();
+  }
+
+  // Filter clicks update the URL via history.pushState + re-render instead
+  // of a real navigation — a full page load resets scroll to the top every
+  // time, which is jarring when filtering from partway down a long page.
+  function navigate(url) {
+    history.pushState(null, '', url);
+    refresh();
+  }
+
+  window.addEventListener('popstate', refresh);
+
+  function renderStats(stats) {
+    document.getElementById('stat-total').textContent = stats.total_events;
+    document.getElementById('stat-completed').textContent = stats.total_completed;
+    document.getElementById('stat-total-time').textContent = fmtDuration(stats.total_duration_seconds);
+    document.getElementById('stat-avg-time').textContent = fmtDuration(stats.avg_duration_seconds);
+    document.getElementById('stat-tokens').textContent =
+      stats.total_tokens === null || stats.total_tokens === undefined ? '–' : stats.total_tokens.toLocaleString();
+  }
+
+  function specUrl(correlationId) {
+    const params = new URLSearchParams(window.location.search);
+    params.set('correlation_id', correlationId);
+    return `/dashboard?${params}`;
+  }
+
+  function mcpUrl(server) {
+    const params = new URLSearchParams(window.location.search);
+    params.set('mcp_server', server);
+    return `/dashboard?${params}`;
+  }
+
+  function renderMcpStatsTable(mcpStats, activeServer) {
+    const container = document.getElementById('mcp-stats-table');
+    if (!mcpStats.length) {
+      container.innerHTML = '<div class="empty">No MCP server usage recorded yet.</div>';
+      return;
+    }
+    const rows = mcpStats.map(s => {
+      const rowClass = activeServer === s.server ? 'is-active mcp-row' : 'mcp-row';
+      return `
+        <tr class="${rowClass}" onclick="navigate('${mcpUrl(s.server)}')">
+          <td>${escapeHtml(s.server)}</td>
+          <td class="mono">${s.calls}</td>
+          <td class="mono">${s.tokens ? s.tokens.toLocaleString() : '–'}</td>
+          <td class="mono">${s.event_count}</td>
+          <td class="mono">${s.spec_count}</td>
+        </tr>
+      `;
+    }).join('');
+    container.innerHTML = `
+      <table>
+        <thead>
+          <tr><th>Server</th><th>Calls</th><th>Tokens</th><th>Events</th><th>Specs</th></tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  }
+
+  function modeUrl(mode) {
+    const params = new URLSearchParams(window.location.search);
+    params.set('mode', mode);
+    return `/dashboard?${params}`;
+  }
+
+  function renderModeStatsTable(modeStats, activeModeValue) {
+    const container = document.getElementById('mode-stats-table');
+    if (!modeStats.length) {
+      container.innerHTML = '<div class="empty">No permission-mode usage recorded yet.</div>';
+      return;
+    }
+    const rows = modeStats.map(s => {
+      const rowClass = activeModeValue === s.mode ? 'is-active mcp-row' : 'mcp-row';
+      return `
+        <tr class="${rowClass}" onclick="navigate('${modeUrl(s.mode)}')">
+          <td>${escapeHtml(s.mode)}</td>
+          <td class="mono">${s.turns}</td>
+          <td class="mono">${s.tokens ? s.tokens.toLocaleString() : '–'}</td>
+          <td class="mono">${s.event_count}</td>
+          <td class="mono">${s.spec_count}</td>
+        </tr>
+      `;
+    }).join('');
+    container.innerHTML = `
+      <table>
+        <thead>
+          <tr><th>Mode</th><th>Turns</th><th>Tokens</th><th>Events</th><th>Specs</th></tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  }
+
+  function renderBarChart(stats, skill) {
+    const counts = Object.fromEntries(stats.by_skill.map(s => [s.skill_name, s.count]));
+    const avgDurations = Object.fromEntries(stats.avg_duration_by_skill.map(s => [s.skill_name, s.avg_seconds]));
+    const maxCount = Math.max(1, ...Object.values(counts));
+    const container = document.getElementById('bar-chart');
+
+    if (stats.total_events === 0 && !skill) {
+      container.innerHTML = '<div class="empty">No events yet. Run a speckit skill to see data here.</div>';
+      return;
+    }
+
+    container.innerHTML = SKILL_ORDER.map(s => {
+      const count = counts[s] || 0;
+      const pct = Math.round((count / maxCount) * 100);
+      const label = s.replace('speckit-', '');
+      const color = SKILL_COLORS[s];
+      const avg = avgDurations[s];
+      const rowClass = skill ? (skill === s ? 'is-active' : 'is-dimmed') : '';
+      const targetParams = new URLSearchParams(window.location.search);
+      targetParams.set('skill', s);
+      return `
+        <div class="bar-row ${rowClass}" onclick="navigate('/dashboard?${targetParams}')">
+          <div class="bar-label"><span class="dot" style="background:${color}"></span>${label}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${pct}%; background:${color}"></div>
+            <div class="tooltip">${label}: ${count} event${count === 1 ? '' : 's'}${avg ? ` · avg ${fmtDuration(avg)}` : ''}</div>
+          </div>
+          <div class="bar-count">${count}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function setSpecsSort(key) {
+    specsSort = specsSort.key === key ? { key, dir: -specsSort.dir } : { key, dir: -1 };
+    renderSpecsTable(activeCorrelationId());
+  }
+
+  function renderSpecsTable(activeCorrId) {
+    const container = document.getElementById('specs-table');
+    let specs = lastSpecs.filter(rowMatchesSearch);
+    if (specsSort.key === 'time') specs = sortRows(specs, specsSort, s => s.total_duration_seconds);
+    if (specsSort.key === 'tokens') specs = sortRows(specs, specsSort, s => s.total_tokens);
+
+    if (!lastSpecs.length) {
+      container.innerHTML = '<div class="empty">No specs yet.</div>';
+      return;
+    }
+    if (!specs.length) {
+      container.innerHTML = '<div class="empty">No specs match your search.</div>';
+      return;
+    }
+    const rows = specs.map(s => {
+      const rowClass = activeCorrId === s.correlation_id ? 'is-active' : '';
+      const skillDots = SKILL_ORDER.filter(sk => s.skills.includes(sk))
+        .map(sk => `<span class="dot" style="background:${SKILL_COLORS[sk]}" title="${sk.replace('speckit-', '')}"></span>`)
+        .join('');
+      return `
+        <tr class="${rowClass}" onclick="navigate('${specUrl(s.correlation_id)}')" style="cursor:pointer">
+          <td>${s.ticket_id || '<span class="empty">–</span>'}</td>
+          <td class="mono">${shortId(s.correlation_id)}</td>
+          <td><span class="truncate" title="${s.summary || ''}">${s.summary || '–'}</span></td>
+          <td><div class="skill-dots">${skillDots}</div></td>
+          <td class="mono">${s.total_completed}/${s.total_runs}</td>
+          <td class="mono">${fmtDuration(s.total_duration_seconds)}</td>
+          <td class="mono">${s.total_tokens ? s.total_tokens.toLocaleString() : '–'}</td>
+          <td class="mono">${fmtTime(s.last_event_at)}</td>
+        </tr>
+      `;
+    }).join('');
+    container.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Ticket</th><th>Correlation ID</th><th>Summary</th><th>Skills</th><th>Done/Runs</th>
+            <th class="sortable ${specsSort.key === 'time' ? 'is-sorted' : ''}" onclick="setSpecsSort('time')">Total time ${sortArrow(specsSort, 'time')}</th>
+            <th class="sortable ${specsSort.key === 'tokens' ? 'is-sorted' : ''}" onclick="setSpecsSort('tokens')">Tokens ${sortArrow(specsSort, 'tokens')}</th>
+            <th>Last activity</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  }
+
+  function setEventsSort(key) {
+    eventsSort = eventsSort.key === key ? { key, dir: -eventsSort.dir } : { key, dir: -1 };
+    renderEventsTable(activeSkill(), activeCorrelationId(), activeMcpServer(), activeMode());
+  }
+
+  function renderEventsTable(skill, correlationId, mcpServer, mode) {
+    const titleBits = [];
+    if (skill) titleBits.push(skill.replace('speckit-', ''));
+    if (correlationId) titleBits.push(shortId(correlationId));
+    if (mcpServer) titleBits.push(`mcp:${mcpServer}`);
+    if (mode) titleBits.push(`mode:${mode}`);
+    document.getElementById('events-title').textContent =
+      titleBits.length ? `Recent events — ${titleBits.join(' · ')}` : 'Recent events';
+
+    const container = document.getElementById('events-table');
+    let events = lastEvents.filter(rowMatchesSearch);
+    if (eventsSort.key === 'duration') events = sortRows(events, eventsSort, e => (e.metadata || {}).duration_seconds);
+    if (eventsSort.key === 'tokens') events = sortRows(events, eventsSort, e => (e.metadata || {}).tokens_used);
+
+    if (!lastEvents.length) {
+      container.innerHTML = '<div class="empty">No events yet.</div>';
+      return;
+    }
+    if (!events.length) {
+      container.innerHTML = '<div class="empty">No events match your search.</div>';
+      return;
+    }
+    const rows = events.map(e => {
+      const meta = e.metadata || {};
+      const mcpBadges = (meta.mcp_usage || [])
+        .map(u => `<span class="mcp-badge" title="${u.calls} call${u.calls === 1 ? '' : 's'}, ${(u.tokens || 0).toLocaleString()} tokens">${escapeHtml(u.server)}</span>`)
+        .join('');
+      return `
+      <tr class="row-clickable" onclick="showEventDetail('${e.id}')">
+        <td class="mono">${fmtTime(e.event_timestamp)}</td>
+        <td>${e.event_type}</td>
+        <td>${e.skill_name || ''}</td>
+        <td class="mono">${fmtDuration(meta.duration_seconds)}</td>
+        <td>${e.ticket_id || '<span class="empty">–</span>'}</td>
+        <td class="mono">${meta.tokens_used ? meta.tokens_used.toLocaleString() : '–'}</td>
+        <td>${mcpBadges || '<span class="empty">–</span>'}</td>
+        <td class="mono link" onclick="event.stopPropagation(); navigate('${specUrl(e.correlation_id)}')">${shortId(e.correlation_id)}</td>
+        <td>${e.repository}</td>
+        <td>${e.branch || ''}</td>
+      </tr>
+    `;
+    }).join('');
+    container.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th><th>Event</th><th>Skill</th>
+            <th class="sortable ${eventsSort.key === 'duration' ? 'is-sorted' : ''}" onclick="setEventsSort('duration')">Duration ${sortArrow(eventsSort, 'duration')}</th>
+            <th>Ticket</th>
+            <th class="sortable ${eventsSort.key === 'tokens' ? 'is-sorted' : ''}" onclick="setEventsSort('tokens')">Tokens ${sortArrow(eventsSort, 'tokens')}</th>
+            <th>MCP</th>
+            <th>Correlation ID</th><th>Repo</th><th>Branch</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  }
+
+  document.getElementById('search-input').addEventListener('input', (e) => {
+    searchTerm = e.target.value.trim();
+    renderSpecsTable(activeCorrelationId());
+    renderEventsTable(activeSkill(), activeCorrelationId(), activeMcpServer(), activeMode());
+  });
+
+  refresh();
+  setInterval(refresh, 5000);
+</script>
+</body>
+</html>

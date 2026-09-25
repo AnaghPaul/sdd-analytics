@@ -1,0 +1,25 @@
+apiVersion: 1
+
+providers:
+  - name: 'Spec-kit Telemetry'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/json
+
+  # Drill-down-only dashboards (e.g. Event Detail) — reached by clicking
+  # through from a main dashboard, not meant to be browsed to directly.
+  # Kept in a separate folder so they don't clutter the main dashboard list.
+  - name: 'Spec-kit Telemetry (internal)'
+    orgId: 1
+    folder: 'Internal — Drill-down Views'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/json-internal
